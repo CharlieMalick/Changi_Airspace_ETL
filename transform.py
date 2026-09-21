@@ -22,3 +22,18 @@ def clean_callsign(raw_callsign) -> str:
         return "Insufficient Data"
     
     return cleaned
+
+def transform_state(state: list) -> dict:
+    # state is one row from OpenSky's "states" array, e.g.:
+    # ["76cd06","SIA967  ","Singapore",1789742730,1789742730,103.9269,1.2294,754.38,false,98.89,22.96,-5.2,...]
+    #    [0]      [1]                                            [5]      [6]     [7]    [8]           [11]
+    #  icao24   callsign                                          lon      lat  altitude on_ground   vert_rate
+    icao24 = state[0]
+    callsign = clean_callsign(state[1])
+    longitude = state[5]
+    latitude = state[6]
+    altitude = state[7]
+    phase = classify_flight_phase(state[8], state[7], state[11])
+    final_dict = {"icao24":icao24, "callsign":callsign, "longitude":longitude, 
+                  "latitude":latitude, "altitude":altitude, "phase":phase}
+    return final_dict
