@@ -1,8 +1,26 @@
 def validate_state(record: dict) -> bool:
-    # record is the output of transform_state() — e.g.:
-    # {'icao24': '76cef2', 'callsign': 'SIA636', 'longitude': 104.0733, 
-    #  'latitude': 1.4473, 'altitude': 1120.14, 'phase': 'Climb'}
-    for value in record.values():
-        if value is None:
+    for key, value in record.items():
+        if key != "altitude" and value is None:
             return False
+    
+    if not altitude_is_reasonable(record["altitude"]):
+        return False
+    
+    if not coordinates_in_bounds(record["longitude"], record["latitude"]):
+        return False
+    
     return True
+
+def altitude_is_reasonable(altitude) -> bool:
+    if altitude is None:
+        return True  # grounded aircraft, no altitude to check
+    if -500 <= altitude <= 18000:
+        return True
+    return False
+
+def coordinates_in_bounds(longitude, latitude) -> bool:
+    if longitude is None or latitude is None:
+        return False
+    if 103.60 <= longitude <= 104.20 and 1.15 <= latitude <= 1.55:
+        return True
+    return False
